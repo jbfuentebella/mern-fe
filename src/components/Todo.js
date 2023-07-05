@@ -1,31 +1,33 @@
 import React from 'react';
-import FormAlert from './FormAlert';
 import DeleteTodoModal from './modals/DeleteTodoModal';
 import UpdateTodoModal from './modals/UpdateTodoModal';
+import { useForm } from 'react-hook-form';
 
 const Todo = () => {
   const [showDeleteTodoModal, setShowDeleteTodoModal] = React.useState(false);
   const [showUpdateTodoModal, setShowUpdateTodoModal] = React.useState(false);
   const [todoList, setTodoList] = React.useState([]);
-  const [inputValue, setInputValue] = React.useState('');
   const [toDeleteTodoItem, setToDeleteTodoItem] = React.useState(null);
   const [toUpdateTodoItem, setToUpdateTodoItem] = React.useState(null);
+  const {
+    register,
+    formState: { errors },
+    handleSubmit,
+    reset,
+    watch,
+  } = useForm();
 
-  const handleChange = (event) => {
-    setInputValue(event.target.value);
-  };
-
-  const handleAddValue = () => {
+  const onSubmit = (data) => {
     todoList.push({
       id: Math.random().toString(),
-      text: inputValue,
+      text: data.todoItem,
       checked: false,
       created_at: new Date(),
       updated_at: null,
       checked_at: null,
     });
     setTodoList(sortedTodoList(todoList));
-    setInputValue('');
+    reset();
   };
 
   const handleShowDeleteModal = (item) => {
@@ -104,38 +106,49 @@ const Todo = () => {
           <div className='w-full mb-0 mt-6 space-y-4 rounded-lg p-4 shadow-2xl sm:p-6 lg:p-8'>
             <div className='w-full'>
               <p className='text-center text-lg font-medium mb-5'>What would you like to do?</p>
-              <FormAlert
-                type={'error'}
-                message={'Error found.'}
-                subMessage={'Please correct the following to complete the sign in process.'}
-              />
 
-              <div className='border border-gray-100 p-2 focus-within:ring sm:flex sm:items-center sm:gap-4 mt-2'>
-                <div className='grow'>
-                  <label htmlFor='todo' className='sr-only'>
-                    To Do
-                  </label>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <div className='border border-gray-50 border-b-gray-600 p-2 pb-5 focus:outline-none sm:flex sm:items-center sm:gap-4 mt-2'>
+                  <div className='grow'>
+                    <label htmlFor='todo' className='sr-only'>
+                      To Do
+                    </label>
 
-                  <div className=''>
-                    <input
-                      type='text'
-                      value={inputValue}
-                      onChange={handleChange}
-                      className='w-full border-none focus:outline-none sm:text-sm'
-                      placeholder='Enter Todo'
-                    />
+                    <div className=''>
+                      <input
+                        type='text'
+                        {...register('todoItem', { required: 'Todo is required.', maxLength: 255 })}
+                        className={
+                          errors.todoItem
+                            ? 'w-full border-2 border-rose-600 rounded focus:outline-none sm:text-sm'
+                            : 'w-full border-none focus:outline-none sm:text-sm'
+                        }
+                        placeholder='Enter Todo'
+                      />
+                      <p className='text-xs flex justify-end '>{watch('todoItem') ? watch('todoItem').length + '/255' : ''}</p>
+                      {errors.todoItem?.type === 'required' && (
+                        <p role='alert' className='text-rose-600 font-medium'>
+                          {errors.todoItem?.message}
+                        </p>
+                      )}
+                      {errors.todoItem?.type === 'maxLength' && (
+                        <p role='alert' className='text-rose-600 font-medium'>
+                          Todo exceeded max character of 255. Please remove some characters.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <button
+                      type='submit'
+                      className='block mt-1 w-full rounded-lg bg-indigo-500 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-none hover:bg-indigo-600 sm:mt-0 sm:w-auto sm:shrink-0'
+                    >
+                      Submit
+                    </button>
                   </div>
                 </div>
-
-                <div>
-                  <button
-                    onClick={handleAddValue}
-                    className='block mt-1 w-full rounded-lg bg-indigo-500 px-6 py-3 text-sm font-bold uppercase tracking-wide text-white transition-none hover:bg-indigo-600 sm:mt-0 sm:w-auto sm:shrink-0'
-                  >
-                    Submit
-                  </button>
-                </div>
-              </div>
+              </form>
             </div>
             <div className='w-full'>
               <table className='max-w-full divide-y-2 divide-gray-200 bg-white text-sm'>

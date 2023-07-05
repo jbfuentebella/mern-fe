@@ -20,9 +20,8 @@ const DeleteTodoModal = (props) => {
             <div className='relative p-6 flex-auto'>
               <p className='my-4 text-slate-500 text-lg leading-relaxed'>
                 Are you sure you want to delete the todo item?
-                <br /><br />
-                <p>{props.toDeleteTodoItem.text.toString()}</p>
               </p>
+              <p>{props.toDeleteTodoItem.text.toString()}</p>
             </div>
             <div className='flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b'>
               <button
